@@ -49,5 +49,4 @@ po/*~
 rsconnect/
 
 # big RDS databases (too heavy)
-Corpus.RDS
-Rawdata/PGToday.RDS
+Data/
