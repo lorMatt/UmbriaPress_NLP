@@ -1,0 +1,4 @@
+!python -m venv /Users/lorenzomattioli/.virtualenvs/spacy_396
+!source /Users/lorenzomattioli/.virtualenvs/spacy_39/bin/activate
+!pip install -U spacy
+!python -m spacy download it_core_news_sm
