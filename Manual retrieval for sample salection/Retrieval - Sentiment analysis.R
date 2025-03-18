@@ -27,13 +27,14 @@ lex <- bind_rows(lexPos, lexNeg)
 
 ## analysis ----
 UPTok_sent <- UPTok |> 
-  inner_join(lex) |> 
+  inner_join(lex)
+UPTok_sent <- UPTok_sent |> 
   group_by(doc_id) |> 
   count(polarity) |> # count positive, negative words
   pivot_wider(names_from = polarity,
               values_from = n) |> 
   mutate(ratio = (pos - neg)/(pos + neg)) |> # compute pos/neg ratio
-  inner_join(UPTok) # retrieve all other info from original DF
+  inner_join(UPTok_sent) # retrieve all other info from original DF
 
 # Save results
 write_rds(UPTok_sent, 'Models/Retrieval_UPTok_sent.RDS')
