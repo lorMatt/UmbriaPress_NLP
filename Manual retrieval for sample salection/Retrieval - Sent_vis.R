@@ -33,12 +33,17 @@ theme_set(theme(panel.background = element_blank(),
 ## Pos-neg per topic by city ----
 
 ret_ratioCity_gg <- UPTok_sent |> 
+  filter(Industry + Transportation + Environment < 2) |> # eliminating ambiguous matches
+  pivot_longer(cols = Industry:Environment,
+               names_to = 'topic',
+               values_to = 'flag') |> 
+  filter(flag != 0) |> 
   ggplot(aes(ratio, city, fill = city)) +
   geom_violin(alpha = .3) +
   geom_boxplot(width = .2) +
   geom_vline(aes(xintercept = 0), linetype = 'dashed') +
-  scale_fill_manual(values = pal[4:6]) +
-  facet_wrap(~keyword, ncol = 1, strip.position = 'right') +
+  scale_fill_manual(values = pal) +
+  facet_wrap(~topic, ncol = 1, strip.position = 'right') +
   labs(title = 'Ratio between positive and negative word count',
        subtitle = 'Visualised by topic and city') +
   theme(axis.title = element_blank(),
@@ -47,15 +52,40 @@ ret_ratioCity_gg <- UPTok_sent |>
         strip.text = element_text(face = 'bold'))
 
 ggsave('Plots/ret_ratioCity_gg.pdf', ret_ratioCity_gg)
+### restricted to corriere
+ret_ratioCorrCity_gg <- UPTok_sent |> 
+  filter(Industry + Transportation + Environment < 2 & newspaper == 'Corriere dell\'Umbria') |> # eliminating ambiguous matches
+  pivot_longer(cols = Industry:Environment,
+               names_to = 'topic',
+               values_to = 'flag') |> 
+  filter(flag != 0) |> 
+  ggplot(aes(ratio, city, fill = city)) +
+  geom_violin(alpha = .3) +
+  geom_boxplot(width = .2) +
+  geom_vline(aes(xintercept = 0), linetype = 'dashed') +
+  scale_fill_manual(values = pal) +
+  facet_wrap(~topic, ncol = 1, strip.position = 'right') +
+  labs(title = 'Ratio between positive and negative word count',
+       subtitle = 'Visualised by topic and city, restricted to Corriere dell\'Umbria') +
+  theme(axis.title = element_blank(),
+        legend.position = 'none',
+        axis.line.x = element_blank(),
+        strip.text = element_text(face = 'bold'))
 
+ggsave('Plots/ret_ratioCorrCity_gg.pdf', ret_ratioCorrCity_gg)
 ## Pos/neg ratio by newspaper --------------------------------------------------
 ret_ratio_byPaper_gg <- UPTok_sent |> 
+  filter(Industry + Transportation + Environment < 2) |> # eliminating ambiguous matches
+  pivot_longer(cols = Industry:Environment,
+               names_to = 'topic',
+               values_to = 'flag') |> 
+  filter(flag != 0) |> 
   ggplot(aes(ratio, newspaper, fill = newspaper)) +
   geom_violin(alpha = .3) +
   geom_boxplot(width = .2) +
   geom_vline(aes(xintercept = 0), linetype = 'dashed') +
-  scale_fill_manual(values = pal[4:6]) +
-  facet_wrap(~keyword, ncol = 1, strip.position = 'right') +
+  scale_fill_manual(values = pal) +
+  facet_wrap(~topic, ncol = 1, strip.position = 'right') +
   labs(title = 'Ratio between positive and negative word count',
        subtitle = 'Visualised by topic and newspaper') +
   theme(axis.title = element_blank(),

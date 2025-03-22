@@ -11,7 +11,7 @@ lexPos <- read_delim('Lexicon/readable_pos_words_list.txt', delim = '\t', col_na
   separate_wider_delim(token, ' ', names = c('token', 'lang')) |> 
   filter(lang == 'it' & !token %in% c('chiaro', 'chiaramente', 'chiarire', 'chiarezza',
                                      'anzitutto', 'tutto', 'lavorare', 'lavorato', 'modo',
-                                     'molto', 'come', 'di')) |> 
+                                     'molto', 'come', 'di', 'servizi', 'nuovo', 'economia', 'valore')) |> 
   select(!lang) |> 
   mutate(polarity = 'pos')
 
@@ -19,7 +19,7 @@ lexPos <- read_delim('Lexicon/readable_pos_words_list.txt', delim = '\t', col_na
 lexNeg <- read_delim('Lexicon/readable_neg_words_list.txt', delim = '\t', col_names = 'token') |> 
   separate_wider_delim(token, ' ', names = c('token', 'lang')) |> 
   filter(lang == 'it' & !token %in% c('fatto', 'trovata', 'trovarsi', 'in', 'sin',
-                                     'coinvolto', 'comune', 'pari')) |> 
+                                     'coinvolto', 'comune', 'pari', 'rifiuti')) |> 
   select(!lang) |> 
   mutate(polarity = 'neg')
 
@@ -38,3 +38,4 @@ UPTok_sent <- UPTok_sent |>
 
 # Save results
 write_rds(UPTok_sent, 'Models/Retrieval_UPTok_sent.RDS')
+

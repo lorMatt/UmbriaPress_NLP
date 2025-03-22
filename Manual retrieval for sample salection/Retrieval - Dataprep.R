@@ -14,26 +14,60 @@ Industry <- c('acciaieria', 'industria', 'acciaio', 'Arvedi', 'Thyssen',
 Transportation <- c('treno', 'aeroporto', 'Trenitalia',
               'ciclabile', 'mobilità', 'BRT', 'trasporti') |> 
   paste(collapse = '|')
+Environment <- c('emissioni', 'PM10', 'inquinamento', 'ecolog', 'riuso',
+               'ecosistem', 'rifiuti', 'inceneritor') |> 
+  paste(collapse = '|')
 
-### Keeping only matching articles ----
-UmbriaPressInd <- UmbriaPress |> # industry
-  filter(str_detect(text, regex(Industry, ignore_case = T))) |> 
-  mutate(keyword = 'Industry')
+### Matching dictionaries, flagging topics ----
+UmbriaPressDet <- UmbriaPress |>
+  mutate(Industry = ifelse(str_detect(text, regex(Industry, ignore_case = T)), 1, 0),
+         Transportation = ifelse(str_detect(text, regex(Transportation, ignore_case = T)), 1, 0),
+         Environment = ifelse(str_detect(text, regex(Environment, ignore_case = T)), 1, 0))
 
-UmbriaPressTrans <- UmbriaPress |> # transportation
-  filter(str_detect(text, regex(Transportation, ignore_case = T))) |> 
-  mutate(keyword = 'Transportation')
+### Computing ratios ----
+UmbriaPressSal <- UmbriaPressDet |> 
+  mutate(semester = floor_date(date, unit = 'halfyears'),
+         city = case_match(city,
+                           'PG' ~ 'Perugia',
+                           'TR' ~ 'Terni')) |> 
+  filter(semester > as_date('1 January 2011', format = "%d %B %Y")) |> 
+  group_by(semester, city) |> 
+  count(Environment) |> 
+  pivot_wider(names_from = Environment, values_from = n) |> 
+  mutate(Environment = `1`/(`0`+`1`)) |> 
+  select(Environment, semester, city)
 
-### Merge dataframes and handle overlapping articles ----
-UmbriaPressFilt <- bind_rows(UmbriaPressInd, UmbriaPressTrans) |>
-  group_by(doc_id) |>
-  mutate(keyword = if_else(n() > 1, 'both', first(keyword))) |>
-  ungroup() |>
-  distinct(doc_id, .keep_all = TRUE) # Remove duplicate rows
+UmbriaPressSal <- UmbriaPressDet |> 
+  mutate(semester = floor_date(date, unit = 'halfyears'),
+         city = case_match(city,
+                           'PG' ~ 'Perugia',
+                           'TR' ~ 'Terni')) |> 
+  filter(semester > as_date('1 January 2011', format = "%d %B %Y")) |> 
+  group_by(semester, city) |> 
+  count(Transportation) |> 
+  pivot_wider(names_from = Transportation, values_from = n) |> 
+  mutate(Transportation = `1`/(`0`+`1`)) |> 
+  select(Transportation, semester, city) |> 
+  full_join(UmbriaPressSal)
+
+UmbriaPressSal <- UmbriaPressDet |> 
+  mutate(semester = floor_date(date, unit = 'halfyears'),
+         city = case_match(city,
+                           'PG' ~ 'Perugia',
+                           'TR' ~ 'Terni')) |> 
+  filter(semester > as_date('1 January 2011', format = "%d %B %Y")) |> 
+  group_by(semester, city) |> 
+  count(Industry) |> 
+  pivot_wider(names_from = Industry, values_from = n) |> 
+  mutate(Industry = `1`/(`0`+`1`)) |> 
+  select(Industry, semester, city) |> 
+  full_join(UmbriaPressSal) |> 
+  pivot_longer(cols = !semester:city, names_to = 'topic', values_to = 'ratio')
 
 # NLP dataprep -----------------------------------------------------------------
 stopwords_vec <- stopwords(language = 'it')
-UPTok <- UmbriaPressFilt |> 
+UPTok <- UmbriaPressDet |> 
+  filter(Environment == 1 | Transportation == 1 | Industry == 1) |> 
   mutate(text = str_replace_all(text, "[\'’](?!\\s)", "' ")) |> # adjust tokeniser for Italian
   unnest_tokens(token, text) |> # tokenisation
   filter(!token %in% stopwords_vec) |> # deleting stopwords
@@ -41,7 +75,12 @@ UPTok <- UmbriaPressFilt |>
   filter(!str_detect(token, regex('\\d'))) |> # deleting numbers
   filter(!str_detect(token, regex('[[:punct:][:digit:]\\p{S}]'))) |> # deleting punctuation
   filter(str_length(token) <= 15) |> # deleting impossibly long words
-  filter(str_length(token) > 4) # deleting impossibly short words
+  filter(str_length(token) > 4) |> # deleting impossibly short words
+  
 
 # Save dataset -----------------------------------------------------------------
 saveRDS(UPTok, 'Data/UPTok_retrieval.RDS')
+saveRDS(UmbriaPressSal, 'Data/UmbriaPressSal.RDS')
+saveRDS(UmbriaPressDet, 'Data/UmbriaPressDet.RDS')
+
+
