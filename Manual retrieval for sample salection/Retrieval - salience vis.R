@@ -20,6 +20,7 @@ na_col <- "gray75"
 
 ### theming ----
 theme_set(theme(panel.background = element_blank(),
+                plot.title = element_text(face = 'bold'),
                 axis.ticks = element_blank(),
                 legend.title = element_blank(),
                 panel.grid.major = element_line(linetype = 'solid',
