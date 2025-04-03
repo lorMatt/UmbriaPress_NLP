@@ -66,6 +66,7 @@ UmbriaPressSal <- UmbriaPressDet |>
 
 # NLP dataprep -----------------------------------------------------------------
 stopwords_vec <- stopwords(language = 'it')
+## tokenisation ----
 UPTok <- UmbriaPressDet |> 
   filter(Environment == 1 | Transportation == 1 | Industry == 1) |> 
   mutate(text = str_replace_all(text, "[\'’](?!\\s)", "' ")) |> # adjust tokeniser for Italian

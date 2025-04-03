@@ -35,7 +35,7 @@ theme_set(theme(panel.background = element_blank(),
 
 
 
-## Topic salience by city
+## Topic salience by city ----
 
 ret_salByCity <- UmbriaPressSal |> 
   mutate(ratio = case_match(ratio, NA ~ 0, .default = ratio)) |> 

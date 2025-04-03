@@ -58,3 +58,34 @@ best_match_pg <- function(term, n = 5){
   )
 }
 
+## PCA ----
+### queries ----
+Environment <- c('emissioni', 'inquinamento', 'riuso',
+                 'ecosistema', 'rifiuti', 'inceneritore')
+Industry <- c('industria', 'acciaio')
+Transportation <- c('treno', 'aeroporto', 'ciclabile', 'mobilità', 'trasporti')
+Query <- append(Environment, Industry) |> 
+  append(Transportation)
+
+### models ----
+TR_PCA <- prcomp(TR_emb_mat[Query, ]) |>
+  pluck('x') |> 
+  as.data.frame() |> 
+  rownames_to_column('term') |> 
+  mutate(city = 'Terni',
+         query = case_when(term %in% Environment ~ 'Environment',
+                           term %in% Industry ~ 'Industry',
+                           term %in% Transportation ~ 'Transportation'))
+
+PG_PCA <- prcomp(PG_emb_mat[Query, ]) |>
+  pluck('x') |> 
+  as.data.frame() |> 
+  rownames_to_column('term') |> 
+  mutate(city = 'Perugia',
+         query = case_when(term %in% Environment ~ 'Environment',
+                           term %in% Industry ~ 'Industry',
+                           term %in% Transportation ~ 'Transportation'))
+PCA <- TR_PCA |> 
+  bind_rows(PG_PCA)
+
+write_rds(PCR, 'Models/PCA.RDS')

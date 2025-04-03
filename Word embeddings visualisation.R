@@ -5,30 +5,41 @@ p_load(tidyverse, ggrepel, patchwork)
 # Import data
 TR_emb_mat <- read_rds('Models/TR_emb_mat.RDS')
 PG_emb_mat <- read_rds('Models/PG_emb_mat.RDS')
+PCA <- read_rds('Models/PCA.RDS')
+
+# Visualisation
+## settings ----
+pal <- c(
+  "#FDA638",
+  "#459395",
+  "#EB7C69",
+  '#2BE19E',
+  '#972F5A',
+  '#121333'
+)
+na_col <- "gray75"
+
+### theming ----
+theme_set(theme(panel.background = element_blank(),
+                plot.title = element_text(face = 'bold'),
+                axis.ticks = element_blank(),
+                legend.title = element_blank(),
+                panel.grid.major = element_line(linetype = 'solid',
+                                                colour = 'gray97',
+                                                linewidth = .3),
+                panel.grid.minor = element_blank(),
+                axis.line.x = element_line(colour = 'gray25'),
+                axis.line.y = element_line(colour = 'gray25'),
+                strip.background = element_blank()
+))
+
+
 ## PCA ----
-### queries ----
-Environment <- c('emissioni', 'inquinamento', 'riuso',
-                 'ecosistema', 'rifiuti', 'inceneritore')
-Industry <- c('industria', 'acciaio')
-Transportation <- c('treno', 'aeroporto', 'ciclabile', 'mobilità', 'trasporti')
-Query <- append(Environment, Industry) |> 
-  append(Transportation)
-### models ----
-TR_PCR <- prcomp(TR_emb_mat[Query, ]) |>
-  pluck('x') |> 
-  as.data.frame() |> 
-  rownames_to_column('term') |> 
-  ggplot(aes(PC1, PC2)) +
-  geom_label_repel(aes(label = term)) +
-  labs(title = 'Terni')
 
-PG_PCR <- prcomp(PG_emb_mat[Query, ]) |>
-  pluck('x') |> 
-  as.data.frame() |> 
-  rownames_to_column('term') |> 
-  ggplot(aes(PC1, PC2)) +
-  geom_label_repel(aes(label = term)) +
-  labs(title = 'Perugia')
+PCA_gg <- PCA |> 
+  ggplot(aes(PC1, PC2, label = term)) +
+  geom_label_repel() +
+  facet_wrap(~city) +
+  scale_colour_manual(values = pal)
 
-TR_PCR + PG_PCR &
-  plot_annotation(title = 'Semantic fields in city sub-corpora')
+ggsave('Plots/PCA_gg.pdf', PCA_gg, width = 8, height = 4)
