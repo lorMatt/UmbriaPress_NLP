@@ -74,6 +74,31 @@ ret_ratioCorrCity_gg <- UPTok_sent |>
         strip.text = element_text(face = 'bold'))
 
 ggsave('Plots/ret_ratioCorrCity_gg.pdf', ret_ratioCorrCity_gg)
+
+## Pos-neg within environment by city and time ----
+ret_ratioCity_timegg <- UPTok_sent |> 
+  filter(Environment == 1) |> 
+  mutate(date = floor_date(date, unit = 'halfyears')) |> 
+  dplyr::group_by(date, city) |> 
+  drop_na(ratio) |> 
+  reframe(ratio = mean(ratio)) |> 
+  ggplot(aes(date, ratio, colour = city)) +
+  geom_hline(aes(yintercept = 0), linetype = 'dashed', colour = 'gray55') +
+  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = pal) +
+  scale_x_date(limits = c(dmy('01/01/2016'), dmy('01/01/2025')),
+               expand = expansion(c(0,.01)),
+               date_breaks = 'years',
+               date_labels = '%Y') +
+  labs(title = 'Ratio between positive and total word count',
+       subtitle = 'Visualised by city over time') +
+  theme(axis.title = element_blank(),
+        legend.position = 'none',
+        strip.text = element_text(face = 'bold'))
+
+ggsave('Plots/ret_ratioCity_timegg.pdf', ret_ratioCity_timegg)
+
 ## Pos/neg ratio by newspaper --------------------------------------------------
 ret_ratio_byPaper_gg <- UPTok_sent |> 
   filter(Industry + Transportation + Environment < 2) |> # eliminating ambiguous matches

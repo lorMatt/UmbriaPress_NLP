@@ -37,9 +37,9 @@ theme_set(theme(panel.background = element_blank(),
 ## PCA ----
 
 PCA_gg <- PCA |> 
-  ggplot(aes(PC1, PC2, label = term)) +
-  geom_label_repel() +
+  ggplot(aes(PC1, PC2, label = term, fill = query)) +
+  geom_label_repel(colour = 'white') +
   facet_wrap(~city) +
-  scale_colour_manual(values = pal)
+  scale_fill_manual(values = pal)
 
-ggsave('Plots/PCA_gg.pdf', PCA_gg, width = 8, height = 4)
+ggsave('Plots/PCA_gg.pdf', PCA_gg, width = 12, height = 6)

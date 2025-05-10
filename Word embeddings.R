@@ -62,7 +62,7 @@ best_match_pg <- function(term, n = 5){
 ### queries ----
 Environment <- c('emissioni', 'inquinamento', 'riuso',
                  'ecosistema', 'rifiuti', 'inceneritore')
-Industry <- c('industria', 'acciaio')
+Industry <- c('industria', 'acciaio', 'manifattura', 'produzione')
 Transportation <- c('treno', 'aeroporto', 'ciclabile', 'mobilità', 'trasporti')
 Query <- append(Environment, Industry) |> 
   append(Transportation)
