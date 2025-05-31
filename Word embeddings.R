@@ -1,9 +1,24 @@
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
-p_load(tidyverse, wordsalad)
+p_load(tidyverse, wordsalad, quanteda)
 
 # Import data ------------------------------------------------------------------
 UmbriaPressDet <- read_rds('Data/UmbriaPressDet.RDS')
+
+# Define quanteda corpus
+
+UPCorp <- corpus(UmbriaPressDet,
+                 docid_field = 'doc_id',
+                 text_field = 'text')
+UPTok <- tokens(UPCorp,
+                what = 'word',
+                remove_punct = T,
+                remove_symbols = T,
+                remove_numbers = T,
+                remove_url = T,
+                remove_separators = T)
+# kwic
+kwic(UPCorp, 'ambiente')
 
 ## Data wrangling ----
 
