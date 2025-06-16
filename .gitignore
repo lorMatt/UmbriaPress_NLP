@@ -28,6 +28,9 @@ vignettes/*.pdf
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
 
+Models/docs_LDA_art_sent.RDS
+Models/docs_LDA_target_sent.RDS
+
 # knitr and R markdown default cache directories
 *_cache/
 /cache/
